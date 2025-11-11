@@ -6,17 +6,20 @@
     <title>Nostalgy.Core</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
-
+    <!-- Configuración para PWA (Progressive Web App) -->
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#0d6efd" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <style>
+        /* Estilo de miniaturas de imágenes */
         .thumb { height: 70px; object-fit: cover; border-radius: .35rem; }
         .thumbs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+        /* Fondo principal */
         body{ background-image: url(img/logoNostalgy.png); background-size: auto; background-position: center; background-repeat: no-repeat; min-height: 100vh;}
-          /* Botón de instalación visible y flotante */
+          
+        /* Botón flotante para instalar la app (PWA) */
         #btnInstall {
             position: fixed; right: 16px; bottom: 16px;
             padding: 12px 16px; border: 0; border-radius: 10px;
@@ -28,30 +31,36 @@
 </head>
 <body class="bg-dark">
     <div class="container py-5">
+        <!-- Título principal y botones -->
         <div class="text-center mb-4">
             <h1 class="display-4 text-primary mb-3 pb-4 fw-bold">Nostalgy.Core</h1>
+            <!-- Botón que abre el modal para añadir un nuevo descargable -->
             <button type="button" class="btn btn-info btn-lg" data-bs-toggle="modal" data-bs-target="#productoModal">
                 Añadir nuevo descargable
             </button>
+            <!-- Botón para limpiar todo el LocalStorage -->
             <button id="clearAll" class="btn btn-danger text-dark btn-lg ms-2">
-                Limpiar todo (LocalStorage)
+                Limpiar todo 
             </button>
         </div>
-        <!--Contenedor para mostrar los productos-->
+        <!-- Aquí se mostrarán los productos cargados -->
         <div id="productosContainer" class="row g-4"></div>
     </div>
-    <!--Modal: Formulario-->
+    <!-- Modal con formulario para registrar un nuevo descargable -->
     <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
+                <!-- Encabezado del modal -->
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title" id="productoModalLabel">Registro de Nuevo Descargable</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <!-- Cuerpo del formulario -->
                 <div class="modal-body p-4 bg-dark text-white" style="background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url(img/fondo.png);background-size: cover; background-position: center; background-repeat: no-repeat;">
                     <form id="productoForm">
                         <div class="row g-3">
-
+                            
+                            <!-- Campos del formulario -->
                             <div class="col-md-6">
                                 <label for="claveProducto" class="form-label">Clave*</label>
                                 <input type="text" class="form-control" id="claveProducto" placeholder="Clave de producto" required>
@@ -80,7 +89,8 @@
                                     <input type="number" class="form-control" id="precio" placeholder="0.00" step="0.01" required>
                                 </div>
                             </div>
-
+                            
+                   
                             <div class="col-12">
                                 <label for="stock" class="form-label">Stock*</label>
                                 <input type="number" class="form-control" id="stock" placeholder="Ej: 10" required>
@@ -91,6 +101,7 @@
                                 <textarea class="form-control" id="descripcion" rows="3" placeholder="Describe el descargable..."></textarea>
                             </div>
                             <!--MODIFICACION: SUBIR una o varias imagenes-->
+                            <!-- Subida de imágenes -->
                             <div class="col-12">
                                 <label for="imagenes" class="form-label">Descargable (puedes subir una o varias)</label>
                                 <input type="file" id="imagenes" class="form-control" accept="image/*" multiple />
@@ -99,6 +110,7 @@
                         </div>
                     </form>
                 </div> 
+                <!-- Pie del modal -->
                 <div class="modal-footer bg-dark">
                     <button type="button" class="btn btn-secondary text-dark" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" form="productoForm" class="btn btn-info">Guardar Descargable</button>
@@ -106,19 +118,21 @@
             </div>
         </div>
     </div> 
+    <!-- Scripts de Bootstrap -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-
+    
+   /*Array, lista de productos guardados*/
     <script>
-        let productos = [];
+        let productos = [];// Lista de productos guardados
         
-        const LS_KEY = 'productos';
+        const LS_KEY = 'productos';// Clave para LocalStorage
 
         const modal = new bootstrap.Modal(document.getElementById('productoModal'));
-
+        // Guarda los productos en LocalStorage
         function saveToLS() {
             localStorage.setItem(LS_KEY, JSON.stringify(productos));
         }
-
+        // Carga los productos almacenados
         function loadFromLS() {
             try {
                 const raw = localStorage.getItem(LS_KEY);
@@ -129,11 +143,11 @@
                 localStorage.removeItem(LS_KEY);
             }
         }
-
+        // Da formato de moneda mexicana a un número
         function currencyMX(n) {
             return Number(n).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
-
+        // Convierte archivos en Data URLs para poder guardarlos
         function readFilesAsDataURLs(filelist) {
             const files = Array.from(filelist || []);
             const readers = files.map(
@@ -147,18 +161,18 @@
             );
             return Promise.all(readers);
         }
-
+        // Renderiza los productos en tarjetas visuales
         function renderProjects() {
             const container = document.getElementById('productosContainer');
             container.innerHTML = '';
-
+            // Colores según estilo
             const estadoClasses = {
                 Y2K: 'info',
                 'frutiger-aero': 'primary',
                 'cyber-core': 'warning',
                 oldweb: 'success'
             };
-
+            // Nombre visible del estilo
             const estadoTexto = {
                 Y2K: 'Y2K',
                 'frutiger-aero': 'Frutiger Aero',
@@ -166,18 +180,20 @@
                 oldweb: 'Old Web'
             };
 
-            // Recorrer y crear tarjetas por producto
+            // Recorre la lista y genera tarjetas
             productos.forEach((producto, idx) => {
                 const col = document.createElement('div');
                 col.className = 'col-md-6 col-lg-4 mb-4';
-
+                
+                // Mostrar máximo 3 miniaturas por producto
                 const thumbs = (producto.imagenes || []).slice(0, 3) 
                 .map((img) => `<img class="thumb w-100" src="${img.dataURL}" alt="${producto.nombre}" />`)
                 .join('');
                 
                 const extraCount = (producto.imagenes?.length || 0) - 3;
                 const extraBadge = extraCount > 0 ? `<span class="badge bg-secondary">+${extraCount} más</span>` : '';
-
+                
+                // Tarjeta con información
                 col.innerHTML = `
                     <div class="card h-100 shadow-sm">
                         <div class="card-header bg-${estadoClasses[producto.estado]} text-white d-flex align-items-center justify-content-between">
@@ -205,7 +221,8 @@
 
                 container.appendChild(col);
             });
-
+            
+            // Botones para eliminar productos
             container.querySelectorAll('[data-action="delete"]').forEach((btn) => {
                 btn.addEventListener('click', (e) => {
                     const i = Number(e.currentTarget.getAttribute('data-index'));
@@ -215,7 +232,8 @@
                 });
             });
         }
-
+        
+        // Muestra mensajes flotantes (notificaciones)
         function showToast(msg, type = 'success') {
             const toast = document.createElement('div');
             toast.className = 'toast align-items-center text-bg-' + (type === 'success' ? 'success' : 'danger') + ' position-fixed top-0 end-0 m-3';
@@ -232,10 +250,12 @@
             bsToast.show();
             setTimeout (() => toast.remove(), 3500);
         }
-
+        
+        // Evento al enviar el formulario
         document.getElementById('productoForm').addEventListener('submit', async function (e) {
             e.preventDefault();
-
+            
+            // Lee imágenes seleccionadas
             const imagenesInput = document.getElementById('imagenes');
             let imagenes = [];
             try {
@@ -244,7 +264,8 @@
                 console.error('Error leyendo imágenes', err);
                 showToast('Hubo un problema leyendo las imágenes', 'error');
             }
-
+            
+            // Crear objeto de producto
             const producto = {
                 id: crypto.randomUUID(),
                 nombre: document.getElementById('nombreProducto').value.trim(),
@@ -255,24 +276,25 @@
                 descripcion: document.getElementById('descripcion').value.trim(),
                 imagenes,
             };
-
+            
+             // Guardar y renderizar
             productos.push(producto);
             saveToLS();
             renderProjects();
 
-            // limpiar y cerrar
+            // limpiar fromulario y cerrar modal
             this.reset();
             modal.hide();
             showToast('Descargable guardado correctamente');
         });
 
 
-        // cargar al iniciar
+        // Cargar productos al abrir la página
         document.addEventListener('DOMContentLoaded', () => {
             loadFromLS();
             renderProjects();
 
-            // Evento: Limpiar todo el LocalStorage
+            // Evento: limpiar todo
             document.getElementById('clearAll').addEventListener('click', () => {
                 if (confirm('¿Seguro que deseas borrar todos los descargables guardados en este navegador?')) {
                     productos = [];
@@ -284,10 +306,13 @@
             });
         });
     </script>
+    <!-- Botón de instalación PWA -->
     <button id="btnInstall" hidden>Instalar app</button>
 
 <script>
-// Registrar Service Worker
+    /*FUNCIONALIDAD PWA (APP INSTALABLE)*/
+
+// Registrar Service Worker para permitir modo offline
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
@@ -296,7 +321,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Manejo del "beforeinstallprompt" para mostrar botón de instalar
+// Manejo del evento para mostrar el botón de instalación
 let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -305,12 +330,12 @@ window.addEventListener('beforeinstallprompt', (e) => {
   if (btn) btn.hidden = false;
 });
 
-// Click en el botón para lanzar el prompt
+// Al hacer clic en “Instalar app”
 document.addEventListener('click', async (e) => {
   if (e.target && e.target.id === 'btnInstall') {
     if (!deferredPrompt) return;
     e.target.disabled = true;
-    deferredPrompt.prompt();
+    deferredPrompt.prompt();// Muestra el cuadro de instalación
     const { outcome } = await deferredPrompt.userChoice;
     console.log('Instalación:', outcome);
     deferredPrompt = null;
@@ -318,7 +343,7 @@ document.addEventListener('click', async (e) => {
   }
 });
 
-// Evento cuando la app fue instalada
+// Cuando la app ya fue instalada
 window.addEventListener('appinstalled', () => {
   console.log('PWA instalada');
   const btn = document.getElementById('btnInstall');
@@ -327,6 +352,7 @@ window.addEventListener('appinstalled', () => {
 </script>
 </body>
 </html>
+
 
 
 
